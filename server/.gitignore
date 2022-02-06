@@ -1,0 +1,13 @@
+.vscode
+node_modules
+
+# misc
+.DS_Store
+.env*
+*.log*
+
+# data files
+# exclude all .json files as they are expected to be game data files
+# specifically allow the game-words.json dictionary
+data/*.json
+!data/game-words.json
