@@ -6,7 +6,10 @@ export async function fetchJson(route, body, method, headers ) {
   let newHeaders = { "Content-Type": "application/json; charset=utf-8" };
   Object.assign(newHeaders, headers);
 
-  const options = { method: newMethod, headers: newHeaders, body: newBody };
+  const options = { method: newMethod, headers: newHeaders };
+  if (newMethod !== "GET" && newMethod !== "HEAD") {
+    options.body = newBody;
+  }
   const response = await fetch(`${urlBase}${route}`, options);
   const responseJson = await response.json();
   if (response.ok) {

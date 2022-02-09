@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { postJson } from "../utils/fetchJsonHelper";
+import { getJson, putJson } from "../utils/fetchJsonHelper";
 import Game from "../utils/Game";
 
-function CreateGame() {
+function JoinGame() {
   const navigate = useNavigate();
   const [ gameName, setGameName ] = useState("");
   const [ playerName, setPlayerName ] = useState("");
@@ -13,11 +13,14 @@ function CreateGame() {
     event.preventDefault();
 
     try {
-      // Create the game on the server
-      const data = await postJson("/game", { name: gameName, playerName });
+      // Validate the game exists
+      const data = await getJson(`/game/${gameName}`);
       const game = new Game(data);
       // Update state with the new game information
       setGameName(game.name);
+      // Add the player and update the game
+      game.addPlayer(playerName);
+      await putJson(`/game`, game);
       // Navigate to the game
       navigate(`/game/${game.name}`);
     } catch(error) {
@@ -28,13 +31,13 @@ function CreateGame() {
   }
 
   return (
-    <form className="CreateGame" onSubmit={handleSubmit}>
+    <form className="JoinGame" onSubmit={handleSubmit}>
       <input type="text" value={playerName} onChange={e => setPlayerName(e.target.value)} className="largeToken" placeholder="Player name"></input>
-      <input type="text" value={gameName} onChange={e => setGameName(e.target.value)} className="largeToken" placeholder="Generate name"></input>
-      <button type="submit">New Game</button>
+      <input type="text" value={gameName} onChange={e => setGameName(e.target.value)} className="largeToken" placeholder="Game name"></input>
+      <button type="submit">Join Game</button>
       <div className="errorHelpText">{err}</div>
     </form>
   );
 }
 
-export default CreateGame;
+export default JoinGame;

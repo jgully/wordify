@@ -3,7 +3,6 @@ import { kebabCase } from "lodash-es";
 import { getGame, createGame, updateGame } from "../data/gamesRepository.js";
 import Game from "../data/game.js";
 
-const defaultNumberOfTurns = 3;
 const router = express.Router();
 
 router.get("/game/:name", (request, response, next) => {
@@ -17,12 +16,8 @@ router.get("/game/:name", (request, response, next) => {
 });
 
 router.post("/game", (request, response, next) => {
-  const name = kebabCase(request.body.name);
-  const numberOfTurns = request.body.numberOfTurns || defaultNumberOfTurns;
-  if (!parseInt(numberOfTurns)) {
-    throw new Error(`NumberOfTurns parameter "${numberOfTurns}" must be a valid number when creating a new game: (POST) /game?numberOfTurns=3`);
-  }
-  const game = new Game(numberOfTurns, name);
+  const { name, numberOfTurns, playerName } = request.body;
+  const game = new Game({ name, numberOfTurns }, playerName);
   createGame(game);
   response.send(game);
 });

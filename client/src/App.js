@@ -1,12 +1,21 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Welcome from "./Welcome";
-import CreateGame from "./game/CreateGame";
+import JoinGame from "./game/JoinGame";
+import PlayGame from "./game/PlayGame";
 
 function App() {
   return (
     <div className="App">
-      <Welcome></Welcome>
-      <CreateGame></CreateGame>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Welcome></Welcome>} />
+          <Route path="/game">
+            <Route index element={<JoinGame></JoinGame>} />
+            <Route path=":name" element={<PlayGame></PlayGame>} />
+          </Route>
+        </Routes>
+      </Router>
     </div>
   );
 }
