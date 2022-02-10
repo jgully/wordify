@@ -16,8 +16,8 @@ router.get("/game/:name", (request, response, next) => {
 });
 
 router.post("/game", (request, response, next) => {
-  const { name, numberOfTurns, playerName } = request.body;
-  const game = new Game({ name, numberOfTurns }, playerName);
+  const { name, turns, playerName } = request.body;
+  const game = new Game({ name, turns }, playerName);
   createGame(game);
   response.send(game);
 });

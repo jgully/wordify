@@ -1,30 +1,52 @@
 import fs from "fs";
-import shortid from "shortid";
-import { kebabCase } from "lodash-es";
+import { customAlphabet } from "nanoid";
+import { kebabCase, defaultsDeep } from "lodash-es";
 
-const _wordsPath = "./data/game-words.json";
-const _defaultNumberOfTurns = 3;
+const config = {
+  fileNameLength: 6,
+  numberOfTurns: 3,
+  wordsPath: "./data/game-words.json"
+}
 
-function _getWords(numberOfTurns) {
-  const words = JSON.parse(fs.readFileSync(_wordsPath));
+const _defaultGame = {
+  name: "",
+  turns: config.numberOfTurns,
+  turn: 0,
+  word: "",
+  words: [],
+  players: [],
+}
+
+const _defaultPlayer = {
+  name: "",
+  plays: [],
+  score: 0
+}
+
+const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", config.fileNameLength);
+
+function _getWords(turns) {
+  const words = JSON.parse(fs.readFileSync(config.wordsPath));
   const selectedWords = []
-  for (let i=0; i<numberOfTurns; i++) {
+  for (let i=0; i<turns; i++) {
     selectedWords.push(words[Math.floor(Math.random()*words.length)]);
   }
   return selectedWords;
 }
 
 export default class Game {
-  name;
-  words;
-  players;
 
   constructor(game, playerName) {
-    Object.assign(this, game);
-    this.numberOfTurns = this.numberOfTurns || _defaultNumberOfTurns;
-    this.name = kebabCase(this.name) || shortid.generate();
-    this.words = this.words || _getWords(this.numberOfTurns);
-    this.players = this.players || [];
+    // Create the game using the specified values and fallback to defaults
+    // Generate a random name if one is not specified
+    // Add a player if one is specified
+    const newGame = defaultsDeep(game, _defaultGame);
+    Object.assign(this, newGame);
+
+    if (!this.name) {
+      this.name = nanoid();
+    }
+
     if (playerName) {
       this.addPlayer(playerName);
     }
@@ -33,8 +55,8 @@ export default class Game {
   }
 
   validateGame() {
-    if (!parseInt(this.numberOfTurns)) {
-      throw new Error(`NumberOfTurns "${this.numberOfTurns}" must be a valid number.`);
+    if (!parseInt(this.turns)) {
+      throw new Error(`The number of turns must be a valid number: ${this.turns}`);
     }
   }
 
@@ -43,7 +65,7 @@ export default class Game {
     if (existingPlayer) {
       throw new Error(`Player could not be added because a player already exists with the name: "${name}"`)
     }
-    const newPlayer = { name, score: 0, plays: []};
+    const newPlayer = defaultsDeep({ name }, _defaultPlayer);
     this.players.push(newPlayer);
   }
 
